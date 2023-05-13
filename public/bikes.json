@@ -1,0 +1,26 @@
+{
+    "bikes": [
+      {
+        "id": 1,
+        "name": "Bicicleta Roja",
+        "price": 200,
+        "marca": "Marca1",
+        "color": "Rojo"
+      },
+      {
+        "id": 2,
+        "name": "Bicicleta Azul",
+        "price": 300,
+        "marca": "Marca2",
+        "color": "Azul"
+      },
+      {
+        "id": 3,
+        "name": "Bicicleta Verde",
+        "price": 250,
+        "marca": "Marca3",
+        "color": "Verde"
+      }
+    ]
+  }
+  

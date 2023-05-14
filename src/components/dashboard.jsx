@@ -45,12 +45,15 @@ const Dashboard = () => {
   
   useEffect(() => {
     axios
-      .get("https://jsonplaceholder.typicode.com/todos")
-      .then((response) => setBikes(response.data))
+      .get("http://lb-prod-600045538.us-east-1.elb.amazonaws.com:8001/bikes")
+      .then((response) => {
+        console.log(response.data); // <-- agregar este log
+        setBikes(response.data);
+      })
       .catch((error) => console.log(error));
   }, []);
-
-
+  
+  
   return (
     <div className="center-content">
       <div className="container mt-5">
@@ -70,23 +73,19 @@ const Dashboard = () => {
                       <th>ID</th>
                       <th>Nombre de la bicicleta</th>
                       <th>Precio</th>
-                      <th>Marca</th>
-                      <th>Color</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {bikes.map((bike) => (
-                      <tr key={bike.id}>
-                        <td>{bike.id}</td>
-                        <td>{bike.title}</td>
+                    {bikes.map((bike, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{bike.name}</td>
                         <td>{bike.price}</td>
-                        <td>{bike.brand}</td>
-                        <td>{bike.color}</td>
                         <td>
                           <button
                             className="btn btn-primary"
-                            onClick={() => addItemToCart(bike)}
+                            onClick={() => addItemToCart({ id: index, title: bike.name, price: parseFloat(bike.price) })}
                           >
                             Agregar al carrito
                           </button>
@@ -121,9 +120,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-  
-  
-  
   
 };
 

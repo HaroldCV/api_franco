@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cart from "./cart";
+import { Offcanvas } from 'react-bootstrap';
+import swal from 'sweetalert';
+
+
 
 const Dashboard = () => {
   const [bikes, setBikes] = useState([]);
   const [cartItems, setCartItems] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false); // Agregamos el estado del carrito
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const addItemToCart = (item) => {
     setCartItems([...cartItems, item]);
@@ -13,10 +17,32 @@ const Dashboard = () => {
   };
 
   const removeItemFromCart = (item) => {
-    setCartItems(cartItems.filter((i) => i.id !== item.id));
+    const newCartItems = [...cartItems];
+    const index = newCartItems.findIndex((i) => i.id === item.id);
+    newCartItems.splice(index, 1);
+    setCartItems(newCartItems);
     console.log("Se eliminó la siguiente bicicleta del carrito:", item);
   };
 
+  const calculateTotalPrice = () => {
+    let totalPrice = 0;
+    for (let i = 0; i < cartItems.length; i++) {
+      totalPrice += cartItems[i].price;
+    }
+    return totalPrice;
+  };
+  const handleBuy = () => {
+    // Simula un resultado aleatorio
+    const isSuccessful = true;
+  
+    if (isSuccessful) {
+      swal("¡Compra exitosa!", "", "success");
+      setCartItems([]);
+    } else {
+      alert("Hubo un error al procesar la compra. Por favor, inténtalo de nuevo.");
+    }
+  };
+  
   useEffect(() => {
     axios
       .get("https://jsonplaceholder.typicode.com/todos")
@@ -73,29 +99,29 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        {isCartOpen && (
-          <div className="row">
-            <div className="col-md-12">
-              <div className="card">
-                <div className="card-body table-container">
-                  <h1 className="card-title mb-4">Carrito de compras</h1>
-                  {cartItems.length === 0 && <p>No hay items en el carrito</p>}
-                  {cartItems.map((item) => (
-                    <Cart
-                      key={item.id}
-                      item={item}
-                      addItemToCart={addItemToCart}
-                      removeItemFromCart={removeItemFromCart}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <Offcanvas show={isCartOpen} onHide={() => setIsCartOpen(false)}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Carrito de compras</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body className="table-container">
+            {cartItems.length === 0 && <p>No hay items en el carrito</p>}
+            {cartItems.map((item) => (
+              <Cart
+                key={item.id}
+                item={item}
+                addItemToCart={addItemToCart}
+                removeItemFromCart={removeItemFromCart}
+              />
+            ))}
+            <button className="btn btn-primary mt-3" onClick={handleBuy}>
+                Comprar ({cartItems.length}) - Precio total: {calculateTotalPrice()}
+              </button>
+          </Offcanvas.Body>
+        </Offcanvas>
       </div>
     </div>
   );
+  
   
   
   

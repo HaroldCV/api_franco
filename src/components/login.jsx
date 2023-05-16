@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import './login.css';
+import axios from 'axios';
+
 function Login() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
@@ -8,11 +10,20 @@ function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Aquí podrías realizar una petición al backend para validar las credenciales
-    if (username === 'admin' && password === 'admin') {
-      setIsLoggedIn(true);
-    }
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    axios.post('http://lb-prod-600045538.us-east-1.elb.amazonaws.com:8000/register', formData)
+      .then(response => {
+        console.log(response.data);
+        setIsLoggedIn(true);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   };
+  
+  
 
   if (isLoggedIn) {
     return <Navigate to="/dashboard" />;
@@ -34,7 +45,7 @@ function Login() {
         <div className="mb-3">
             <div className='header_gr_text'>
                 <label htmlFor="password" className="gradient__text">Password</label>
-                <input type="password" className="form-control" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input type="text" className="form-control" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
         </div>
         <button type="submit" className="boton_p1">Login</button>

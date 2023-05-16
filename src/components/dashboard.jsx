@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Cart from "./cart";
+//import Cart from "./cart";
 import { Offcanvas } from 'react-bootstrap';
 import swal from 'sweetalert';
 
@@ -11,10 +11,10 @@ const Dashboard = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addItemToCart = (item) => {
-    setCartItems([...cartItems, item]);
-    console.log("Se agregó la siguiente bicicleta al carrito:", item);
-  };
+  //const addItemToCart = (item) => {
+  //  setCartItems([...cartItems, item]);
+  //  console.log("Se agregó la siguiente bicicleta al carrito:", item);
+  //};
 
   const removeItemFromCart = (item) => {
     const newCartItems = [...cartItems];
@@ -27,7 +27,7 @@ const Dashboard = () => {
   const calculateTotalPrice = () => {
     let totalPrice = 0;
     for (let i = 0; i < cartItems.length; i++) {
-      totalPrice += cartItems[i].price;
+      totalPrice += cartItems[i][2]*cartItems[i][1];
     }
     return totalPrice;
   };
@@ -45,14 +45,22 @@ const Dashboard = () => {
   
   useEffect(() => {
     axios
-      .get("http://lb-prod-600045538.us-east-1.elb.amazonaws.com:8001/bikes")
+      .get("http://lb-prod-600045538.us-east-1.elb.amazonaws.com:8002/bikes_data")
       .then((response) => {
         console.log(response.data); // <-- agregar este log
         setBikes(response.data);
       })
       .catch((error) => console.log(error));
   }, []);
-  
+  useEffect(() => {
+    axios
+      .get("http://lb-prod-600045538.us-east-1.elb.amazonaws.com:8001/bikes")
+      .then((response) => {
+        console.log(response.data); // <-- agregar este log
+        setCartItems(response.data);
+      })
+      .catch((error) => console.log(error));
+  }, []);
   
   return (
     <div className="center-content">
@@ -71,8 +79,10 @@ const Dashboard = () => {
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Nombre de la bicicleta</th>
-                      <th>Precio</th>
+                      <th>Modelo</th>
+                      <th>Marca</th>
+                      <th>Color</th>
+                      <th>Aro</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -80,12 +90,14 @@ const Dashboard = () => {
                     {bikes.map((bike, index) => (
                       <tr key={index}>
                         <td>{index + 1}</td>
-                        <td>{bike.name}</td>
-                        <td>{bike.price}</td>
+                        <td>{bike[1]}</td>
+                        <td>{bike[2]}</td>
+                        <td>{bike[3]}</td>
+                        <td>{bike[4]}</td>
                         <td>
                           <button
                             className="btn btn-primary"
-                            onClick={() => addItemToCart({ id: index, title: bike.name, price: parseFloat(bike.price) })}
+                            //onClick={() => addItemToCart({ id: index, title: bike[1], price: parseFloat(bike.price) })}
                           >
                             Agregar al carrito
                           </button>
@@ -104,13 +116,13 @@ const Dashboard = () => {
           </Offcanvas.Header>
           <Offcanvas.Body className="table-container">
             {cartItems.length === 0 && <p>No hay items en el carrito</p>}
-            {cartItems.map((item) => (
-              <Cart
-                key={item.id}
-                item={item}
-                addItemToCart={addItemToCart}
-                removeItemFromCart={removeItemFromCart}
-              />
+            {cartItems.map((item,index) => (
+              <div key={index}>
+                <p>Producto: {item[0]}</p>
+                <p>Cantidad: {item[1]}</p>
+                <p>Precio: {item[2]}</p>
+                <button onClick={() => removeItemFromCart(item)}>Eliminar</button>
+              </div>
             ))}
             <button className="btn btn-primary mt-3" onClick={handleBuy}>
                 Comprar ({cartItems.length}) - Precio total: {calculateTotalPrice()}
